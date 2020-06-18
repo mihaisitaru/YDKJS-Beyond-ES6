@@ -497,8 +497,6 @@
             });
         }
 
-        console.log('ES5 Getter/Setter'); 
-
         // --> ES6
 
         {
@@ -515,7 +513,105 @@
                 *foo() { }
             };
         }
+    }
 
+    console.log('ES5 Getter/Setter');
+
+    {
+        var o = {
+            __id: 10,
+            get id() {
+                return this.__id++;
+            },
+            set id(v) {
+                this.__id = v;
+            }
+        };
+        console.log('o.id', o.id);
+        o.id = 20;
+        console.log('o.id', o.id);
+        console.log('o.__id', o.__id);
+
+        var p = {
+            __id: 0,
+            get id() {
+                return this.__id++;
+            },
+            set id({ id: v = 11 }) {
+                this.__id = v;
+            }
+        };
+        console.log('p.id', p.id);
+        p.id = { id: 20 };
+        console.log('p.id', p.id);
+        console.log('p.__id', p.__id);
+        p.id = { id: 33 };
+        console.log('p.id', p.id);
+        console.log('p.id', p.id);
+    }
+
+    consoleWarn('Computed Property Names');
+
+    {
+        let prefix = 'user_',
+            o = {
+                baz: function () { },
+                [prefix + 'foo']: function () { },
+                [prefix + 'bar']: function () { }
+            },
+            p = {
+                [Symbol.toStringTag]: 'ha ha ha!'
+            },
+            q = {
+                ['f' + 'oo']() { }, // computed concise method
+                *['b' + 'ar']() { } // computed concise generator
+            };
+
+        console.log('o', o);
+        console.log('p', p);
+        console.log('q', q);
+    }
+
+    consoleWarn('Setting [[Prototype]]');
+
+    {
+        let o1 = {
+            first: 1
+        },
+            o2 = {
+                __proto__: o1,
+                second: 2
+            },
+            o3 = {
+                third: 3
+            },
+            o4 = {
+                fourth: 4
+            };
+        console.log('o1', o1);
+        console.log('o2', o2);
+        console.log('o3', o3);
+        Object.setPrototypeOf(o4, o3);
+        console.log('o4', o4);
+    }
+
+    consoleWarn('Object super');
+
+    {
+        let o1 = {
+            foo() {
+                console.log('o1: foo');
+            }
+        },
+            o2 = {
+                foo() {
+                    super.foo();
+                    console.log('o2: foo');
+                }
+            };
+        
+        Object.setPrototypeOf(o2, o1);
+        o2.foo();
     }
 
     function consoleWarn() {
