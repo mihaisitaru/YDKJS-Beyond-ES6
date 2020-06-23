@@ -609,10 +609,184 @@
                     console.log('o2: foo');
                 }
             };
-        
+
         Object.setPrototypeOf(o2, o1);
         o2.foo();
     }
+
+    consoleWarn('Template Literals'); // pg 51
+
+    {
+        console.log('--> pre ES6');
+
+        var name = 'Mihai',
+            greetings = 'Hi ' + name + '!';
+
+        console.log('greetings: ', greetings);
+        console.log('typeof greeting:', typeof greetings);
+
+        console.log('--> ES6');
+
+        let greets = `Hello ${name}!`;
+        console.log('greets: ', greets);
+        console.log('typeof greets:', typeof greets);
+
+        let text = `Lorem 
+        ipsum... 
+        you know it`;
+
+        console.log('text on multiple lines:', text);
+    }
+
+    consoleWarn('Interpolated Expressions');
+
+    {
+        let who = 'reader',
+            text = `A very ${upper('warm')} welcome
+            to all of you ${upper(`${who}s`)}!`;
+        function upper(s) {
+            return s.toUpperCase();
+        }
+
+        console.log('text: ', text);
+    }
+
+    console.log('Expression Scope');
+
+    {
+        function foo(str) {
+            let name = 'foo';
+            console.log(str);
+        }
+
+        function bar() {
+            let name = 'bar';
+            foo(`Hello from ${name}!`);
+        }
+
+        let name = 'global';
+        bar();
+    }
+
+    consoleWarn('Tagged Template Literals');
+
+    {
+        function foo(strings, ...values) {
+            console.log('strings:', strings);
+            console.log('values: ', values);
+        }
+
+        var desc = 'awesome';
+
+        foo`Everything is ${desc}!`;
+    }
+
+    {
+        function bar() {
+            return function foo(strings, ...values) {
+                console.log('strings ', values);
+            };
+        }
+
+        var desc = 'interesting';
+        bar()`Everything is ${desc}`;
+    }
+
+    {
+        let desc = 'awesome',
+            text = tag`Everything is ${desc}!`;
+
+        function tag(strings, ...values) {
+            return strings.reduce(function (s, v, idx) {
+                return s + (idx > 0 ? values[idx - 1] : '') + v;
+            }, '');
+        }
+
+        console.log('text:', text);
+    }
+
+    {
+
+        let amt1 = 11.99,
+            amt2 = amt1 * 1.08,
+            name = 'Mihai',
+            text = dollabillsyall`Thanks for your purchase, ${name}!
+                    Your product cost was ${amt1}, 
+                    which with tax comes out to ${amt2}.`;
+
+        function dollabillsyall(strings, ...values) {
+            return strings.reduce(function (s, v, idx) {
+                if (idx > 0) {
+                    if (typeof values[idx - 1] === 'number') {
+                        s += `$${values[idx - 1].toFixed(2)}`;
+                    } else {
+                        s += values[idx - 1];
+                    }
+                }
+                return s + v;
+            }, '');
+        }
+
+        console.log('text:', text);
+    }
+
+    consoleWarn('Arrow Functions');
+
+    {
+        let f1 = () => 12,
+            f2 = x => x * 2,
+            f3 = (x, y) => {
+                let z = x * 2 + y;
+                y++;
+                x *= 3;
+                return (x + y + z) / 2;
+            };
+        console.log('f1: ', f1());
+        console.log('f2: ', f2(7));
+        console.log('f3: ', f3(5, 3));
+    }
+
+    {
+        let a = [1, 2, 3, 4, 5];
+        a = a.map(v => v * 2);
+        console.log('a:', a);
+    }
+
+    {
+        let amt1 = 11.99,
+            amt2 = amt1 * 1.08,
+            name = 'Mihai',
+            dollabillsyall = (strings, ...values) =>
+                strings.reduce((s, v, idx) => {
+                    if (idx > 0) {
+                        if (typeof values[idx - 1] === 'number') {
+                            s += `$${values[idx - 1].toFixed(2)}`;
+                        } else {
+                            s += values[idx - 1];
+                        }
+                    }
+                    return s + v;
+                }, ''),
+            text = dollabillsyall`Thanks for your purchase, ${name}!
+        Your product cost was ${amt1}, 
+        which with tax comes out to ${amt2}.`
+        console.log('arrow function dollabillsyall:', text);
+    }
+
+    consoleWarn('Not Just Shorter Syntax, But this');
+
+    {
+        let controller = {
+            makeRequest: function () {
+                btn.addEventListener('click', () => {
+                    this.makeRequest();
+                }, false);
+            }
+        };
+        console.log(controller.makeRequest);
+    }
+
+    consoleWarn('for..of Loops');
 
     function consoleWarn() {
         for (let i = 0; i < arguments.length; i++) {
