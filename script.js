@@ -1,5 +1,6 @@
 {
     consoleWarn('___---------START---------___');
+    consoleWarn('Chapter 1 - ES?Now and Future');
 
     {
         let title = document.querySelector('#ES6');
@@ -43,6 +44,8 @@
         };
 
         h4.innerHTML += '<br>' + '----------------------' + '<br>' + shim() + ';';
+
+        consoleWarn('Chapter 2 - Syntax');
 
         // let + for
 
@@ -788,11 +791,137 @@
 
     consoleWarn('for..of Loops');
 
+    {
+        console.log('for..of vs for..in loop');
+
+        let a = ['a', 'b', 'c', 'd', 'e'];
+        console.log('the array: ', a);
+        console.log('for..in will return the index/key:');
+
+        for (let idx in a) {
+            console.log('idx', idx);
+        }
+
+        console.log('for..of will return the value:');
+
+        for (let val of a) {
+            console.log('val', val);
+        }
+
+        console.log('pre-ES6 for..of version:');
+
+        var b = a,
+            k = Object.keys(b);
+
+        for (let val, i = 0; i < k.length; i++) {
+            val = a[k[i]];
+            // setTimeout(() => {
+            console.log('idx ' + i);
+            // }, 0);
+            console.log('val', val);
+        }
+
+        console.log('ES6 non-for..of version:');
+
+        for (
+            let val, ret, it = a[Symbol.iterator]();
+            !(ret = it.next()) && !ret.done;
+        ) {
+            val = ret.value;
+            setTimeout(() => {
+                console.log('idx ' + i);
+            }, 0);
+            console.log('val', val);
+        }
+
+        for (let c of 'Hakuna Matata!') {
+            console.log(c);
+        }
+
+        let o = {};
+
+        for (o.a of [1, 2, 3]) {
+            console.log('the o object: ', o);
+        }
+
+        for ({ x: o.a } of [{ x: 1 }, { x: 2 }, { x: 3 }]) {
+            console.log('o.a', o.a);
+        }
+    }
+
+    consoleWarn('Unicode');
+
+    {
+        let gclef = '\uD834\uDD1E', gclef2 = '\u{1D11E}', cool = '\u2604', snowman = '\u2603';
+        console.log('from 0x0000 to 0xFFFF', 'from', 0x0000, 'to', 0xFFFF)
+        console.log('gclef pre-ES6:', gclef);
+        console.log('gclef ES6:', gclef2);
+        console.log('cool:', cool);
+        console.log('gclef.length :', gclef.length);
+        console.log('snowman.length :', snowman.length);
+
+        console.log('Character Positioning');
+
+        let s1 = 'abc\u0301d',
+            s2 = 'ab\u0107d',
+            s3 = 'ab\u{1d49e}d';
+
+        console.log('s1, s2, s3: ', s1 + ', ' + s2 + ', ' + s3);
+        console.log('s1.charAt(2)', s1.charAt(2));
+        console.log('s2.charAt(2)', s2.charAt(2));
+        console.log('s3.charAt(2)', s3.charAt(2));
+        console.log('[...s1.normalize()][2]', [...s1.normalize()][2]);
+        console.log('[...s2.normalize()][2]', [...s2.normalize()][2]);
+        console.log('[...s3.normalize()][2]', [...s3.normalize()][2]);
+        console.log('s1.normalize().codePointAt(2)', s1.normalize().codePointAt(2));
+        console.log('s2.normalize().codePointAt(2)', s2.normalize().codePointAt(2));
+        console.log('s3.normalize().codePointAt(2)', s3.normalize().codePointAt(2));
+        console.log('String.fromCodePoint(s1.normalize().codePointAt(2))', String.fromCodePoint(s1.normalize().codePointAt(2)));
+        console.log('String.fromCodePoint(s2.normalize().codePointAt(2))', String.fromCodePoint(s2.normalize().codePointAt(2)));
+        console.log('String.fromCodePoint(s3.normalize().codePointAt(2))', String.fromCodePoint(s3.normalize().codePointAt(2)));
+        
+        console.log('Unicode Identifier Names');
+
+        let \u03A9 = 33, \u{28400} = 33;
+        console.log('let \u03A9 =', \u03A9);
+        console.log('let \u{28400} =', \u{28400});
+
+        let symbols = Symbol('New primitive type');
+        console.log(symbols);
+        
+        let sym = Symbol('this is a symbol');
+        console.log('let sym =', sym);
+        console.log('typeof sym: ', typeof sym);
+
+        console.log('sym instanceof Symbol: ', sym instanceof Symbol);
+
+        let symObj = Object(sym);
+        console.log('let symObj = Object(sym);');
+        console.log('symObj instanceof Symbol:', symObj instanceof Symbol);
+        console.log('symObj.valueOf() === sym:', symObj.valueOf() === sym);
+
+        console.log('Symbols as Object Properties');
+
+        let o = {
+            foo: 33,
+            [Symbol('bar')]: 'hello world',
+            baz: true
+        };
+
+        console.log('object with a symbol as a prop', o);
+        console.log('Object.getOwnPropertyNames(o)', Object.getOwnPropertyNames(o));
+        console.log('Object.getOwnPropertySymbols(o)', Object.getOwnPropertySymbols(o));
+    }
+
+    consoleWarn('Chapter 3 - Organization');
+
     function consoleWarn() {
         for (let i = 0; i < arguments.length; i++) {
             console.warn(arguments[i]);
         }
     }
 
-    consoleWarn('___----------END----------___');
+    setTimeout(() => {
+        consoleWarn('___----------END----------___');
+    }, 2000);
 }
