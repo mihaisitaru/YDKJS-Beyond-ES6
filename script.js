@@ -879,7 +879,7 @@
         console.log('String.fromCodePoint(s1.normalize().codePointAt(2))', String.fromCodePoint(s1.normalize().codePointAt(2)));
         console.log('String.fromCodePoint(s2.normalize().codePointAt(2))', String.fromCodePoint(s2.normalize().codePointAt(2)));
         console.log('String.fromCodePoint(s3.normalize().codePointAt(2))', String.fromCodePoint(s3.normalize().codePointAt(2)));
-        
+
         console.log('Unicode Identifier Names');
 
         let \u03A9 = 33, \u{28400} = 33;
@@ -888,7 +888,7 @@
 
         let symbols = Symbol('New primitive type');
         console.log(symbols);
-        
+
         let sym = Symbol('this is a symbol');
         console.log('let sym =', sym);
         console.log('typeof sym: ', typeof sym);
@@ -915,9 +915,362 @@
 
     consoleWarn('Chapter 3 - Organization');
 
+    console.log('Iterator');
+
+    {
+        let arr = [1, 2, 3],
+            it = arr[Symbol.iterator]();
+
+        console.log('it.next()', it.next());
+        console.log('it.next()', it.next());
+        console.log('it.next()', it.next());
+        console.log('it.next()', it.next());
+    }
+
+    {
+        let greeting = 'hello world',
+            it = greeting[Symbol.iterator]();
+
+        console.log('it.next()', it.next());
+        console.log('it.next()', it.next());
+        console.log('it.next()', it.next());
+        console.log('it.next()', it.next());
+        console.log('it.next()', it.next());
+        console.log('it.next()', it.next());
+        console.log('it.next()', it.next());
+        console.log('it.next()', it.next());
+        console.log('it.next()', it.next());
+        console.log('it.next()', it.next());
+        console.log('it.next()', it.next());
+        console.log('it.next()', it.next());
+    }
+
+    {
+        let m = new Map();
+        m.set('foo', 33);
+        m.set({ cool: true }, 'Hello World');
+        let it1 = m[Symbol.iterator](),
+            it2 = m.entries();
+
+        console.log('it1.next()', it1.next());
+        console.log('it1.next()', it1.next());
+        console.log('it1.next()', it1.next());
+        console.log('it2.next()', it2.next());
+        console.log('it2.next()', it2.next());
+        console.log('it2.next()', it2.next());
+    }
+
+    console.log('Iterator loop')
+
+    {
+        let it = {
+            [Symbol.iterator]() {
+                return this;
+            },
+            next() {
+                return { value: 1, done: true };
+            }
+        };
+
+        console.log('it[Symbol.iterator]() === it: ', it[Symbol.iterator]() === it);
+
+        for (let v of it) {
+            console.log('v:', v);
+        }
+
+        for (let v, res; !(res = it.next()) && !res.done;) {
+            v = res.value;
+            console.log('v: ', v);
+        }
+    }
+
+    console.log('Custom Iterators');
+
+    {
+        let fib = {
+            [Symbol.iterator]() {
+                let n1 = 1, n2 = 1;
+                return {
+                    // making the iterator an iterable
+                    [Symbol.iterator]() {
+                        return this;
+                    },
+                    next() {
+                        let current = n2;
+                        n2 = n1;
+                        n1 = n1 + current;
+                        return { value: current, done: false };
+                    },
+                    return(v) {
+                        console.log('Fibonacci sequence abandoned.');
+                        return { value: v, done: true };
+                    }
+                };
+            }
+        };
+
+        let fibSeq = [];
+        for (let v of fib) {
+            fibSeq.push(v);
+            if (v > 1000000) break;
+        }
+        console.log('Fibonacci sequence: ', fibSeq);
+    }
+
+    {
+        let tasks = {
+            [Symbol.iterator]() {
+                let steps = this.actions.slice();
+                return {
+                    [Symbol.iterator]() {
+                        return this;
+                    },
+                    next(...args) {
+                        if (steps.length > 0) {
+                            let res = steps.shift()(...args);
+                            return { value: res, done: false };
+                        } else {
+                            return { done: true };
+                        }
+                    },
+                    return(v) {
+                        steps.length = 0;
+                        return { value: v, done: true };
+                    }
+                };
+            },
+            actions: []
+        };
+
+        tasks.actions.push(
+            (x) => {
+                console.log('step 1:', x);
+                return x * 2;
+            },
+            (x, y) => {
+                console.log('step 2:', x, y);
+                return x + (y * 2);
+            },
+            (x, y, z) => {
+                console.log('step 3:', x, y, z);
+                return (x * y) + z;
+            }
+        );
+        let it = tasks[Symbol.iterator]();
+        it.next(10);
+        it.next(20, 50);
+        it.next(20, 50, 120);
+        it.next();
+    }
+
+    consoleWarn('Modules');
+
+    {
+        console.log('The Old Way');
+
+        function Hello(name) {
+            function greeting() {
+                console.log('Hello ' + name + '!');
+            }
+            return { greeting: greeting };
+        }
+
+        var me = Hello('Mihai');
+        me.greeting();
+    }
+
+    {
+        var me = (function Hello(name) {
+            function greeting() {
+                console.log('Hi ' + name + '!');
+            }
+            return { greeting: greeting };
+        })('Mihai');
+        me.greeting();
+    }
+
+    console.log('The New Way, import and export');
+
+    consoleLogger('export function foo() {', 'return \'Exported-Imported!\';', '}');
+    consoleLogger('export let awesome = 33;', 'let bar = [1, 2, 3];', 'export { bar };');
+
+    // or
+    // export { foo as bar };
+    // vs
+    consoleLogger('function foo() {', 'return \'Exported-Imported!\;', '}');
+    consoleLogger('let awesome = 33, bar = [1, 2, 3];');
+    consoleLogger('export { foo, awesome, bar };');
+
+    consoleLogger('let awesome = 33;', 'export { awesome };', 'awesome = 100;');
+    consoleLogger();
+    consoleLogger();
+    // even if the module get's imported with awesome value at 33,
+    // if later the value get's changed (to 100 for example),
+    // 100 will be the value of awesome where the module gets imported
+    // the binging with import-export is in essence a reference to/a pointer to awesome
+
+    consoleLogger('function foo() {');
+    consoleLogger('console.log(\'Exporting a binding to the function expression value at that moment\');', '}');
+    consoleLogger('export default foo;');
+
+    consoleLogger('function foo() {');
+    consoleLogger('console.log(\'Exporting a binding to the foo identifier\');');
+    consoleLogger('}', 'export { foo as default };');
+
+    consoleLogger('export default {', 'foo() { console.log(\'\//\'); },', 'bar() { console.log(\'//\'); }', '}');
+
+    consoleLogger('import { foo, bar, baz } from \'foo\';');
+
+    consoleLogger('import { foo } from \'foo\'', 'foo();');
+    consoleLogger('import { foo as theFooFunc } from \'foo\'', 'theFooFunc();');
+
+    consoleLogger('If the module has just a default export the you want to import and bind:');
+    consoleLogger('import foo from \'foo\';', '// or', 'import {defaults as foo} from \'foo\';');
+
+    consoleLogger('Namespace import', 'export function bar() {...}', 'export let x = 33;');
+    consoleLogger('export function baz() {...}', 'import * as foo from "foo";', 'foo.bar();', 'foo.x; //33', 'foo.baz();');
+
+    consoleWarn('ES6 classes');
+
+    {
+        class Foo {
+            constructor(a, b) {
+                this.x = a;
+                this.y = b;
+            }
+            gimmeXY() {
+                return this.x * this.y;
+            }
+        };
+
+        consoleLogger('class Foo {', 'constructor(a, b) {', 'this.x = a;', 'this.y = b;', '}');
+        consoleLogger('gimmeXY() {', 'return this.x * this.y;', '}', '};')
+
+        console.log('new Foo(2, 3).gimmeXY(); //', new Foo(2, 3).gimmeXY());
+
+        consoleWarn('Extends and Super');
+
+        class Bar extends Foo {
+            constructor(a, b, c) {
+                super(a, b);
+                this.z = c;
+            }
+            gimmeXY() {
+                return super.gimmeXY() * this.z;
+            }
+        };
+        let b = new Bar(5, 15, 25);
+        console.log('b.x: ', b.x);
+        console.log('b.y: ', b.y);
+        console.log('b.z: ', b.z);
+        console.log('b.gimmeXY(): ', b.gimmeXY());
+    }
+
+    {
+        consoleWarn('new.target - a "Meta Property" ');
+
+        class Foo {
+            constructor() {
+                console.log('Foo (new.target.name): ', new.target.name);
+            }
+        };
+
+        class Bar extends Foo {
+            constructor() {
+                super();
+                console.log('Bar (new.target.name): ', new.target.name);
+            }
+            baz() {
+                console.log('baz (new.target): ', new.target);
+            }
+        }
+
+        let a = new Foo(),
+            b = new Bar();
+
+        b.baz();
+    }
+
+    {
+        consoleWarn('static');
+
+        class Foo {
+            constructor() {
+                console.log('new.target.answer', new.target.answer);
+            }
+            static answer = 33;
+            static cool() {
+                console.log('static cool');
+            }
+        };
+
+        class Bar extends Foo {
+            constructor() {
+                super();
+                console.log('new.target.answer: ', new.target.answer);
+            }
+        };
+        Foo.answer;
+        Bar.answer;
+        let b = new Bar();
+        // b.cool(); // not working!
+
+        consoleLogger('👍 this:')
+        Object.getPrototypeOf(b).constructor.cool();
+        consoleLogger('👎 vs deprecated:');
+        b.__proto__.constructor.__proto__.cool();
+        b.answer;
+    }
+
+    {
+        consoleLogger('Array.of(..) - Static Function');
+
+        let a = Array(3);
+        console.log('Array(3)', a);
+        console.log('Array.length', a.length);
+        console.log('Array[0]', a[0]);
+
+        let b = Array.of(3);
+        console.log('Array of (3) length', b.length);
+        console.log('Array of [0]', b[0]);
+
+        let c = Array.of(1, 2, 3);
+        console.log('Array of (1, 2, 3) length', c.length);
+        console.log('Array of [0]', c[0]);
+    }
+
+    {
+        consoleLogger('Exponentiation Operator');
+
+        let a = 2;
+        console.log('a**4', a**4);
+        console.log('Math.pow(a, 4)', Math.pow(a, 4));
+    }
+
+    {
+        consoleLogger('Array#includes');
+
+        let vals = ['foo', 'bar', 42, 'baz'];
+        
+        if (vals.indexOf(42) !== -1) {
+            console.log('vals.indexOf(42)', vals.indexOf(42));
+        }
+
+        if (~vals.indexOf(42)) {
+            console.log('~vals.indexOf(42)', vals.indexOf(42));
+        }
+        
+    }
+
     function consoleWarn() {
         for (let i = 0; i < arguments.length; i++) {
             console.warn(arguments[i]);
+        }
+    }
+
+    function consoleLogger() {
+        for (let i = 0; i < arguments.length; i++) {
+            console.log(arguments[i]);
         }
     }
 
